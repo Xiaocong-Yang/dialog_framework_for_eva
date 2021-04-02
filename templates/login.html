@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <form method = "post" action = "http://localhost:5000/login">
+        <table>
+            <tr>
+                <td>Username</td>
+                <td><input type = 'username' name = 'username'></td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td><input type = 'password' name = 'password'></td>
+            </tr>
+            <tr>
+                <td><input type = "submit" value = "Submit"></td>
+            </tr>
+        </table>
+    </form>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</body>
+</html>
