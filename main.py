@@ -1,21 +1,26 @@
 from flask import Flask, session, redirect, render_template, flash, request, url_for
 from flask import g
 import threading
+import json
+from time import sleep
+import random
+import requests
+from utils import MultiAPIs
 
 app = Flask(__name__)
 app.secret_key = 'large scale pre-training project'
 apicall_lock = threading.Lock()
 names = []
 test_number = 0
+api_controller = MultiAPIs('./api_config.json')
+bot_names = api_controller.get_bot_names()
 
 @app.route('/')
 def index():
 	user = session.get('username')
 	if user:
-		flash('Message: Welcome')
 		return redirect(url_for('home'))
 	else:
-		flash('Message: Please login.')
 		return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
@@ -78,5 +83,24 @@ def clear_history():
 	}
 	return render_template('home.html', data=data)
 
+@app.route('/send_message', methods=['POST'])
+def send_message():
+	global bot_names
+	user_post = request.form['user_post']
+	ret = {
+		"status": 0, 
+		"message": 123123, 
+		}
+	# call base models
+	target_bot = random.choice(bot_names)
+	# print(f'bot names: {bot_names}')
+	responses = {}
+	for name in bot_names:
+		responses[name] = api_controller.call_api_by_name(name, {'user_post': user_post})
+	ret['response'] = responses[target_bot]['response']
+	ret['bot_name'] = target_bot
+	ret['responses'] = responses
+	return ret
+	
 if __name__ == '__main__':
-   app.run(debug=True, threaded=True)
+	app.run(debug=True, threaded=True)

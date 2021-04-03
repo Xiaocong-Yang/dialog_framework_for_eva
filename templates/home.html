@@ -15,6 +15,9 @@
     <script src="/static/js/vue.min.js" type="text/javascript"></script>
 </head>
 <body>
+    <div id=loading style="position:absolute; left:423px; top:261px; width:227px; height:20px; z-index:1" hidden>
+        正在载入中,请稍等.....
+    </div>
     <nav class="navbar navbar-inverse" role="navigation">
         <div class="container-fluid">
             <p class="navbar-text" style="width: 10px;"></p>
@@ -52,26 +55,10 @@
         </div>
     </nav>
     <div id="content" style="border: 1px solid wight; width: 1000px; margin:0 auto; display: flex">
-        <div style="border: 1px solid gray; width: 40%;height: 600px; padding: 5px;">
-            <div v-if="is_show_all_outputs" style="margin-bottom: 10px;">
-                <div style="font-size: 20px;">bot1</div>
-                <pre>{bot_outputs[0]}</pre>
-                <div style="display: flex">
-                    <button type="button" class="btn btn-success btn-sm" style="margin-right: 5px;">人类</button>
-                    <button type="button" class="btn btn-danger btn-sm">机器人</button>
-                </div>
-            </div>
-            <div v-if="is_show_all_outputs" style="margin-bottom: 10px;">
-                <div style="font-size: 20px;">bot2</div>
-                <pre>{bot_outputs[1]}</pre>
-                <div style="display: flex">
-                    <button type="button" class="btn btn-success btn-sm" style="margin-right: 5px;">人类</button>
-                    <button type="button" class="btn btn-danger btn-sm">机器人</button>
-                </div>
-            </div>
-            <div v-if="is_show_all_outputs" style="margin-bottom: 10px;">
-                <div style="font-size: 20px;">bot3</div>
-                <pre>{bot_outputs[2]}</pre>
+        <div style="border: 1px solid gray; width: 40%;height: 600px; padding: 5px; overflow-y: auto">
+            <div v-for="_, name in curr_responses" v-if="is_show_all_outputs" style="margin-bottom: 10px;">
+                <div style="font-size: 20px;">{name}</div>
+                <pre style="white-space: pre-wrap; word-wrap: break-word;">{curr_responses[name]}</pre>
                 <div style="display: flex">
                     <button type="button" class="btn btn-success btn-sm" style="margin-right: 5px;">人类</button>
                     <button type="button" class="btn btn-danger btn-sm">机器人</button>
@@ -80,7 +67,7 @@
         </div>
         <div style="border: 1px solid wight; width: 60%;height: 600px;">
             <div id="chat_area" style="width: 95%; margin-left: 2%; height: 70%; background-color: lightgray; overflow-y:auto">
-                <div v-for="message in messages" class="bubble_div">
+                <div v-for="message, message_idx in messages" class="bubble_div">
                     <div v-if="message.role == 'user'" class="user_bubble">
                         <div class="user_message">{message.message}</div>
                         <img class="user_img" :src="'/static/imgs/' + message.name + '.png'" :alt="message.role">
@@ -91,11 +78,14 @@
                             <div class="bot_message">{message.message}</div>
                         </div>
                         <div style="width: 80%; margin-left: 22%; height: 30px; display: flex; margin-top: 3px;">
-                            <button type="button" class="btn btn-default btn-sm" @click="show_all_outputs">显示全部</button>
+                            <button :id="message_idx+'show_all_outputs'" type="button" class="btn btn-default btn-sm" @click="show_all_outputs">显示全部</button>
                             <div style="margin-left: 35px; font-size: 15px; margin-top: 5px; margin-right: 5px;">判断: </div>
-                            <button type="button" class="btn btn-success btn-sm" style="margin-right: 5px;">人类</button>
-                            <button type="button" class="btn btn-danger btn-sm">机器人</button>
+                            <button :id="message_idx+'_like_human'" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="like_human">人类</button>
+                            <button :id="message_idx+'_like_bot'" type="button" class="btn btn-danger btn-sm" @click="like_bot">机器人</button>
                         </div>
+                    </div>
+                    <div v-if="message.role == 'loading'" style="height: 20px; text-align: center; margin-bottom: 10px;">
+                        <font style="color: gray; font-size: 15px"> 系统正在思考，请稍等 ...</font>
                     </div>
                 </div>
             
@@ -103,39 +93,53 @@
             <div style="border: 1px solid wight; width: 95%; margin-left: 2%; height: 30%">
                 <textarea class="form-control" rows="3" style="width: 100%; margin-top: 3%; height: 60%; resize: none; font-size: 20px;" v-model="user_input"></textarea>
                 <div style="border: 1px solid wight; width: 40%; float: right; margin-top: 2%; height: 25%; display: flex">
-                    <button class="btn" style="font-size: 20px; width: 47%; margin-right: 5%">清空</button>
+                    <button class="btn" style="font-size: 20px; width: 47%; margin-right: 5%" @click="clear_history">清空</button>
                     <button class="btn btn-primary" style="font-size: 20px; width: 47%" @click="send_message">发送</button>
                 </div>
             </div>
-            
         </div>
     </div>
 
     <script type="text/javascript">
         $(document).ready(function () {
-            var chat_area = document.getElementById('chat_area');
+            // var chat_area = document.getElementById('chat_area');
             // chat_area.scrollTop = chat_area.scrollHeight;
         });
+        function sleep(time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
         vm = new Vue({
             delimiters: ['{', '}'],
             el: '#content',
             data: {
                 messages: [
-                    {role: 'bot', name: 'bot1', message: '这是一段文字'},
-                    {role: 'bot', name: 'bot3', message: '这是一段文字是一段是一段是一段是一段'},
+                    {role: 'bot', name: 'bot1', message: '这是一段文字', responses: {bot1: {}, bot2: {}, bot3: {}}},
+                    {role: 'bot', name: 'bot3', message: '这是一段文字是一段是一段是一段是一段',  responses: {bot1: {}, bot2: {}, bot3: {}}},
                     {role: 'user', name: 'user', message: '这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字'},
-                    {role: 'bot', name: 'bot2', message: '这是一段文这是一段文字这是一段文字字'},
-                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字'},
+                    {role: 'bot', name: 'bot2', message: '这是一段文这是一段文字这是一段文字字',  responses: {bot1: {}, bot2: {}, bot3: {}}},
+                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字',  responses: {bot1: {}, bot2: {}, bot3: {}}},
                     {role: 'user', name: 'user', message: '这是一这是这是一段文字文这是一段文字文这是一段文字文一段文字文字'},
-                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字'},
+                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字',  responses: {bot1: {}, bot2: {}, bot3: {}}},
                 ],
                 user_input: "",
                 bot_outputs: ['', '', ''],
                 is_show_all_outputs: false,
+                curr_responses: null,
+                curr_turn_idx: -1
             },
             watch: {
-                messages: this.scrollToBottom,
+                messages: function() {
+                    this.$nextTick(() => {
+                        let ele = document.getElementById('chat_area');
+                        ele.scrollTop = ele.scrollHeight;
+                    });
+                }
             },
+            // updated () {
+            //     let ele = document.getElementById('chat_area');
+            //     ele.scrollTop = ele.scrollHeight;
+            //     console.log('App.vue finish re-render')
+            // },
             mounted: function () {
                 var div = document.getElementById('chat_area')
                 div.scrollTop = div.scrollHeight
@@ -148,24 +152,78 @@
                     })
                 },
                 send_message: function() {
+                    if (this.messages.length > 0 && this.messages[this.messages.length-1].role == 'loading') {
+                        return
+                    }
+                    // 禁止用户发送空字符串
+                    // if  (this.user_input == 'undefined' || !this.user_input || !/[^\s]/.test(this.user_input)) {
+                    //     return
+                    // }
                     this.messages.push(
                         {role: 'user', name: 'user', message: this.user_input}
                     )
-                    names = ['bot1', 'bot2', 'bot3']
+                    names = ['bot1', 'bot2', 'bot3']  //, null]
                     let index = Math.floor((Math.random() * names.length));
                     let response_name = names[index]
-                    this.messages.push(
-                        {role: 'bot', name: response_name, message: "还未链接底层对话系统，这是一条用于测试的默认回复。"}
-                    )
+                    if (response_name !== null) {
+                        this.messages.push(
+                            {role: 'loading'}
+                        )
+                        var self = this
+                        $.ajax({
+                            type: 'POST',
+                            url: '/send_message',
+                            data: {
+                                "username": '123',
+                                "user_post": self.user_input,
+                            },
+                            async: true,
+                            success: function (data) {
+                                if (data.status !== 0) {
+                                } else {
+                                    self.messages.pop();
+                                    self.messages.push(
+                                        {
+                                            role: 'bot', 
+                                            name: data.bot_name, 
+                                            message: data.response,
+                                            responses: data.responses
+                                        }
+                                    )
+                                }
+                            },
+                            error: function () {
+                                alert("服务器出错了！");
+                            }
+                        });
+                        
+                    }
                     this.user_input = ''
                 },
-                show_all_outputs: function() {
+                clear_history: function() {
+                    this.messages = []
+                },
+                show_all_outputs: function(e) {
+                    id = e.srcElement.id
+                    turn_idx = parseInt(id.substring(0, id.length-16))
+                    this.curr_responses = this.messages[turn_idx].responses
+                    this.curr_turn_idx = turn_idx
                     this.bot_outputs = [
                         {message: "这是一条回复", confidence: 0.0}, 
                         {message: "这是一条回复", confidence: 0.0}, 
                         {message: "这是一条回复", confidence: 0.0},
                     ]
                     this.is_show_all_outputs = true
+                },
+                like_human: function(e) {
+                    id = e.srcElement.id
+                    turn_idx = parseInt(id.substring(0, id.length-11))
+                    alert('like human: turn_idx ' + turn_idx)
+                },
+                like_bot: function(e) {
+                    id = e.srcElement.id
+                    turn_idx = parseInt(id.substring(0, id.length-9))
+                    alert('like bot: turn_idx ' + turn_idx)
                 }
             },
         });
