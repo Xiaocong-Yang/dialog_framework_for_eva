@@ -68,8 +68,8 @@
                             </div>
                         </div>
                         <div style="width: 80%; margin-left: 22%; height: 30px; display: flex; margin-top: 3px;">
-                            <button v-if="mode != 'single'" :id="message_idx+'show_all_outputs'" type="button" class="btn btn-default btn-sm" @click="show_all_outputs">显示全部</button>
-                            <div v-if="mode == 'single'" style="width:70px;"></div>
+                            <button v-if="mode == 'multi'" :id="message_idx+'show_all_outputs'" type="button" class="btn btn-default btn-sm" @click="show_all_outputs">显示全部</button>
+                            <div v-if="mode != 'multi'" style="width:70px;"></div>
                             <div style="margin-left: 35px; font-size: 15px; margin-top: 5px; margin-right: 5px;">判断: </div>
                             <button :id="message_idx+'_like_human'" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="like_human">人类</button>
                             <button :id="message_idx+'_like_bot'" type="button" class="btn btn-danger btn-sm" @click="like_bot">机器人</button>

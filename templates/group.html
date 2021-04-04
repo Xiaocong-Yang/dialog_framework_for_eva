@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block left_content %}
-<div v-for="name, idx in bot_names" v-if="is_show_all_outputs" style="margin-bottom: 10px;">
+<div v-for="name, idx in bot_names" v-if="false" style="margin-bottom: 10px;">
     <div style="font-size: 20px;">{name} 
         <span v-if="messages[curr_showall_turn_idx].responses[name].label == 'human'" style='color: green; margin-left: 10px;'>&#9786像人类</span>
         <span v-if="messages[curr_showall_turn_idx].responses[name].label == 'bot'" style='color: red; margin-left: 10px;'>&#9785像机器人</span>
@@ -41,7 +41,7 @@
         <button :id="idx+'_best'" type="button" class="btn btn-default btn-sm" @click="best_response" style="margin-left: 100px;">最佳回复</button>
     </div>
 </div>
-<div v-if="! is_show_all_outputs && mode == 'group'">
+<div v-if="mode == 'group'">
     <div style="font-size: 20px; width: 100%; text-align: center; padding-top: 10px;">群聊对话介绍</div>
     <div style="width: 100%; padding-left: 5px; padding-right: 5px; padding-top: 10px; font-family: FangSong;">
         <p style="text-indent: 2em; font-size: 15px;">
