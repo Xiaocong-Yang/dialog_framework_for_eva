@@ -54,6 +54,7 @@ class MultiAPIs:
         for name in config.keys():
             self.apis[name] = APICall(name, config[name]['url'])
         self.bot_names = list(self.apis.keys())
+        self.bot_info = config
     
     def call_api_by_name(self, name, data):
         """基于当前的结果去修改API"""

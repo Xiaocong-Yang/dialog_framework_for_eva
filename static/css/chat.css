@@ -1,6 +1,6 @@
 .bubble_div {
     width: 100%;
-    font-size:20px;
+    font-size:17spx;
     margin-bottom: 5px;
     border: 1px solid none;
     float:left;
@@ -23,11 +23,12 @@
 .bot_message {
     max-width: 300px;
     margin-top: 4px;
-    min-height: 40px;
+    /* min-height: 40px; */
     border-radius:5px;
     background-color: mintcream;
-    padding: 5px;
+    padding-top: 10px;
     padding-left: 8px;
+    padding-right: 8px;
 }
 
 .user_bubble {
@@ -48,9 +49,10 @@
 .user_message {
     max-width: 300px;
     margin-top: 4px;
-    min-height: 40px;
+    /* min-height: 40px; */
     border-radius:5px;
     background-color: lightgreen;
-    padding: 5px;
+    padding-top: 10px;
     padding-left: 8px;
+    padding-right: 8px;
 }

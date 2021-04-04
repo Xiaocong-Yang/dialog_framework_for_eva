@@ -1,0 +1,60 @@
+{% extends "chat_base.html" %}
+
+{% block title %}
+    <title>多模型融合</title>
+{% endblock %}
+
+{% block nav_tabs %}
+<ul class="nav navbar-nav">
+    <li><a href="/single">单模型对话</a></li>
+    <li class="active"><a href="#">多模型融合</a></li>
+    <li><a href="/group">群聊</a></li>
+    <!-- <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            群聊 <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="#">jmeter</a></li>
+            <li><a href="#">EJB</a></li>
+            <li><a href="#">Jasper Report</a></li>
+            <li class="divider"></li>
+            <li><a href="#">分离的链接</a></li>
+            <li class="divider"></li>
+            <li><a href="#">另一个分离的链接</a></li>
+        </ul>
+    </li> -->
+</ul>
+{% endblock %}
+
+{% block left_content %}
+<div v-for="name, idx in bot_names" v-if="is_show_all_outputs" style="margin-bottom: 10px;">
+    <div style="font-size: 20px;">{name} 
+        <span v-if="messages[curr_showall_turn_idx]['responses'][name].label == 'human'" style='color: green; margin-left: 10px;'>&#9786像人类</span>
+        <span v-if="messages[curr_showall_turn_idx]['responses'][name].label == 'bot'" style='color: red; margin-left: 10px;'>&#9785像机器人</span>
+        <span v-if="name == curr_best_response_name" style='color: green; margin-left: 10px;'>&#10004最佳回复</span>
+    </div>
+    <pre style="white-space: pre-wrap; word-wrap: break-word;">{curr_responses[name]}</pre>
+    <div style="display: flex">
+        <button :id="name + '_like_human'" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="like_human_left">人类</button>
+        <button :id="name + '_like_bot'" type="button" class="btn btn-danger btn-sm" @click="like_bot_left">机器人</button>
+        <div></div>
+        <button :id="idx+'_best'" type="button" class="btn btn-default btn-sm" @click="best_response" style="margin-left: 100px;">最佳回复</button>
+    </div>
+</div>
+
+<div v-if="! is_show_all_outputs && mode == 'multi'">
+    <div style="font-size: 20px; width: 100%; text-align: center; padding-top: 10px;">多模型融合对话介绍</div>
+    <div style="width: 100%; padding-left: 5px; padding-right: 5px; padding-top: 10px; font-family: FangSong;">
+        <p style="text-indent: 2em; font-size: 15px;">
+            多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍
+            多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍
+            
+        </p>
+        <p style="text-indent: 2em; font-size: 15px;">
+            多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍多模型融合介绍
+        </p>
+        <!-- <p v-else>请选择</p> -->
+    </div>
+</div>
+
+{% endblock %}

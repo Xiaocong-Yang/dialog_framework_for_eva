@@ -20,7 +20,7 @@ bot_names = api_controller.get_bot_names()
 def index():
 	user = session.get('username')
 	if user:
-		return redirect(url_for('home'))
+		return redirect(url_for('single'))
 	else:
 		return render_template('login.html')
 
@@ -48,8 +48,8 @@ def logout():
 	session.pop('username')
 	return redirect(url_for('index'))
 
-@app.route('/home')
-def home():
+@app.route('/multi')
+def multi():
 	user = session.get('username')
 	dialog_history = session.get('dialog_history')
 	if not dialog_history:
@@ -59,7 +59,34 @@ def home():
 		'username': user,
 		'dialog_history': dialog_history
 	}
-	return render_template('home.html', data=data)
+	return render_template('multi.html', data=data)
+
+@app.route('/single')
+def single():
+	user = session.get('username')
+	dialog_history = session.get('dialog_history')
+	if not dialog_history:
+		dialog_history = []
+		session['dialog_history'] = []
+	data = {
+		'username': user,
+		'dialog_history': dialog_history
+	}
+	return render_template('single.html', data=data)
+
+@app.route('/group')
+def group():
+	user = session.get('username')
+	dialog_history = session.get('dialog_history')
+	if not dialog_history:
+		dialog_history = []
+		session['dialog_history'] = []
+	data = {
+		'username': user,
+		'dialog_history': dialog_history
+	}
+	return render_template('group.html', data=data)
+
 
 @app.route('/user_post', methods=['POST'])
 def user_post():
@@ -84,32 +111,45 @@ def clear_history():
 	}
 	return render_template('home.html', data=data)
 
+@app.route('/get_bot_info', methods=['POST'])
+def get_bot_info():
+	global api_controller, bot_names
+	return {
+		"status": 0, 
+		"message": 123123, 
+		"bot_info": api_controller.bot_info,
+		"bot_names": bot_names}
+
 @app.route('/send_message', methods=['POST'])
 def send_message():
 	global bot_names
 	user_post = request.form['user_post']
+	chat_mode = request.form['chat_mode']
 	ret = {
 		"status": 0, 
 		"message": 123123, 
 		}
-	# call base models
-	target_bot = random.choice(bot_names)
-	# print(f'bot names: {bot_names}')
-	responses = {}
 	start_time = time.time()
 	post_data = {'user_post': user_post}
-	# for name in bot_names:
-	# 	responses[name] = api_controller.call_api_by_name(name, {'user_post': user_post})
-	# responses = api_controller.call_all_apis({'user_post': user_post})
-	# ret['response'] = responses[target_bot]['response']
-	# ret['bot_name'] = target_bot
-	# ret['responses'] = responses
-
-	rank_response = api_controller.call_api_by_rank(post_data)
-	ret['bot_name'] = rank_response['bot_name']
-	ret['responses'] = rank_response['responses']
-	ret['response'] = rank_response['response']
-
+	if chat_mode == 'single':
+		single_bot_name = request.form['single_bot_name']
+		ret['bot_name'] = single_bot_name
+		ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
+	elif chat_mode == 'multi':
+		rank_response = api_controller.call_api_by_rank(post_data)
+		ret['bot_name'] = rank_response['bot_name']
+		ret['responses'] = rank_response['responses']
+		ret['response'] = rank_response['response']
+	else:  # group
+		responses = api_controller.call_all_apis(post_data)
+		# 随机选择下一个
+		target_bot_name = random.choice(bot_names)
+		ret['bot_name'] = target_bot_name
+		ret['responses'] = responses
+		ret['response'] = responses[target_bot_name]['response']
+	if 'responses' in ret:
+		for key in ret['responses']:
+			ret['responses'][key]['label'] = ""
 	print(f'total time: {time.time() - start_time}')
 	return ret
 	
