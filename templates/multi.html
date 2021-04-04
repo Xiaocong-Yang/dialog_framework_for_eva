@@ -31,7 +31,7 @@
     <div style="font-size: 20px;">{name} 
         <span v-if="messages[curr_showall_turn_idx]['responses'][name].label == 'human'" style='color: green; margin-left: 10px;'>&#9786像人类</span>
         <span v-if="messages[curr_showall_turn_idx]['responses'][name].label == 'bot'" style='color: red; margin-left: 10px;'>&#9785像机器人</span>
-        <span v-if="name == curr_best_response_name" style='color: green; margin-left: 10px;'>&#10004最佳回复</span>
+        <span v-if="name == messages[curr_showall_turn_idx].best_response_name" style='color: green; margin-left: 10px;'>&#10004最佳回复</span>
     </div>
     <pre style="white-space: pre-wrap; word-wrap: break-word;">{curr_responses[name]}</pre>
     <div style="display: flex">

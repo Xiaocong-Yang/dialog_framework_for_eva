@@ -1,16 +1,16 @@
 {
     "bot1": {
-        "url": "http://127.0.0.1:5001/bot1",
+        "url": "http://localhost:5002/bot1",
         "name": "bot1",
         "desc": "bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述"
     },
     "bot2": {
-        "url": "http://127.0.0.1:5001/bot2",
+        "url": "http://localhost:5002/bot2",
         "name": "bot2",
         "desc": "bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述"
     },
     "bot3": {
-        "url": "http://127.0.0.1:5001/bot3",
+        "url": "http://localhost:5002/bot3",
         "name": "bot3",
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     }

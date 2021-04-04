@@ -41,6 +41,7 @@ def login():
 	# 		test_number -= number
 	# apicall_lock.release()
 	# print(test_number)
+	print(f'user: {username} login')
 	return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -131,6 +132,7 @@ def send_message():
 		}
 	start_time = time.time()
 	post_data = {'user_post': user_post}
+	print(f'user input: {user_post}')
 	if chat_mode == 'single':
 		single_bot_name = request.form['single_bot_name']
 		ret['bot_name'] = single_bot_name

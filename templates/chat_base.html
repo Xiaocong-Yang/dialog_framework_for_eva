@@ -17,10 +17,7 @@
     <script src="/static/js/vue.min.js" type="text/javascript"></script>
 </head>
 <body>
-    <div id=loading style="position:absolute; left:423px; top:261px; width:227px; height:20px; z-index:1" hidden>
-        正在载入中,请稍等.....
-    </div>
-    <nav class="navbar navbar-inverse" role="navigation">
+    <nav class="navbar navbar-inverse" role="navigation" v-cloak>
         <div class="container-fluid">
             <p class="navbar-text" style="width: 10px;"></p>
             <div class="navbar-header">
@@ -39,7 +36,7 @@
             <p class="navbar-text navbar-right" style="margin-right: 20px;">当前用户：{{data.username}}</p>
         </div>
     </nav>
-    <div id="content" style="border: 1px solid wight; width: 1000px; margin:0 auto; display: flex">
+    <div id="content" style="border: 1px solid wight; width: 1000px; margin:0 auto; display: flex" v-cloak>
         <div style="border: 1px solid gray; width: 40%;height: 600px; padding: 5px; overflow-y: auto">
             {% block left_content %}
             {% endblock %}
@@ -58,8 +55,8 @@
                     </div>
                     <div v-if="message.role == 'bot'" class="bot_bubble">
                         <div style="width: 100%; display: flex">
-                            <img v-if="mode != 'multi'" class="bot_img" :src="'/static/imgs/' + message.name + '.png'" :alt="message.role">
-                            <img v-if="mode == 'multi'" class="bot_img" :src="'/static/imgs/turing.png'" :alt="message.role">
+                            <img v-if="mode != 'multi'" class="bot_img" :src="'/static/imgs/' + message.name + '.png'" :alt="message.role" :title="message.name">
+                            <img v-if="mode == 'multi'" class="bot_img" :src="'/static/imgs/turing.png'" :alt="message.role" title="多模型融合">
                             <div class="bot_message"><p>{message.message}</p>
                                 <p>
                                     <span v-if="messages[message_idx].label == 'bot'" style='color: red; margin-left: 10px;'>&#9785像机器人</span> 
@@ -104,13 +101,13 @@
             el: '#content',
             data: {
                 base_messages: [
-                    {role: 'bot', name: 'bot1', message: '这是一段文字', responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:""},
-                    {role: 'bot', name: 'bot3', message: '这是一段文字是一段是一段是一段是一段',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:""},
+                    {role: 'bot', name: 'bot1', message: '这是一段文字', responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:"", best_response_name: ""},
+                    {role: 'bot', name: 'bot3', message: '这是一段文字是一段是一段是一段是一段',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:"", best_response_name: ""},
                     {role: 'user', name: 'user', message: '这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字'},
-                    {role: 'bot', name: 'bot2', message: '这是一段文这是一段文字这是一段文字字',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:""},
-                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字文字子自己',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:""},
+                    {role: 'bot', name: 'bot2', message: '这是一段文这是一段文字这是一段文字字',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:"", best_response_name: ""},
+                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字文字子自己',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:"", best_response_name: ""},
                     {role: 'user', name: 'user', message: '这是一这是这是一段文字文这是一段文字文这是一段文字文一段文字文字'},
-                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:""},
+                    {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:"", best_response_name: ""},
                 ],
                 messages: [],
                 user_input: "",
@@ -204,9 +201,9 @@
                         return
                     }
                     // 禁止用户发送空字符串
-                    // if  (this.user_input == 'undefined' || !this.user_input || !/[^\s]/.test(this.user_input)) {
-                    //     return
-                    // }
+                    if  (this.user_input == 'undefined' || !this.user_input || !/[^\s]/.test(this.user_input)) {
+                        return
+                    }
                     this.messages.push(
                         {role: 'user', name: 'user', message: this.user_input}
                     )
@@ -244,7 +241,8 @@
                                             label: "",
                                             name: data.bot_name, 
                                             message: data.response,
-                                            responses: data.responses
+                                            responses: data.responses,
+                                            best_response_name: ''
                                         }
                                     )
                                 }
@@ -264,6 +262,9 @@
                     id = e.srcElement.id
                     turn_idx = parseInt(id.substring(0, id.length-16))
                     this.curr_responses = this.messages[turn_idx].responses
+                    // if (turn_idx !== this.curr_showall_turn_idx) {
+
+                    // }
                     this.curr_showall_turn_idx = turn_idx
                     this.is_show_all_outputs = true
                 },
@@ -303,7 +304,7 @@
                 best_response: function(e) {
                     id = e.srcElement.id
                     idx = parseInt(id.substring(0, id.length-5))
-                    this.curr_best_response_name = this.bot_names[idx];
+                    this.messages[this.curr_showall_turn_idx].best_response_name = this.bot_names[idx];
                     // alert('第' + turn_idx + '轮对话的最佳回复来自机器人' + this.curr_best_response_name + ' !')
                 }
             },
