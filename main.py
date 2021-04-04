@@ -6,6 +6,7 @@ from time import sleep
 import random
 import requests
 from utils import MultiAPIs
+import time
 
 app = Flask(__name__)
 app.secret_key = 'large scale pre-training project'
@@ -95,11 +96,21 @@ def send_message():
 	target_bot = random.choice(bot_names)
 	# print(f'bot names: {bot_names}')
 	responses = {}
-	for name in bot_names:
-		responses[name] = api_controller.call_api_by_name(name, {'user_post': user_post})
-	ret['response'] = responses[target_bot]['response']
-	ret['bot_name'] = target_bot
-	ret['responses'] = responses
+	start_time = time.time()
+	post_data = {'user_post': user_post}
+	# for name in bot_names:
+	# 	responses[name] = api_controller.call_api_by_name(name, {'user_post': user_post})
+	# responses = api_controller.call_all_apis({'user_post': user_post})
+	# ret['response'] = responses[target_bot]['response']
+	# ret['bot_name'] = target_bot
+	# ret['responses'] = responses
+
+	rank_response = api_controller.call_api_by_rank(post_data)
+	ret['bot_name'] = rank_response['bot_name']
+	ret['responses'] = rank_response['responses']
+	ret['response'] = rank_response['response']
+
+	print(f'total time: {time.time() - start_time}')
 	return ret
 	
 if __name__ == '__main__':
