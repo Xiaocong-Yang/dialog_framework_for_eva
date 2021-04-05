@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="/static/css/bootstrap-theme.css">
     <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/static/css/chat.css">
+    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.js" type="text/javascript"></script>
     <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="/static/js/npm.js" type="text/javascript"></script>
-    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/vue.min.js" type="text/javascript"></script>
 </head>
 <body>
@@ -33,7 +33,7 @@
                     退出登录
                 </button>
             </form>
-            <p class="navbar-text navbar-right" style="margin-right: 20px;">当前用户：{{data.username}}</p>
+            <p id="user_login" class="navbar-text navbar-right" style="margin-right: 20px;">当前用户：{{data.username}}</p>
         </div>
     </nav>
     <div id="content" style="border: 1px solid wight; width: 1000px; margin:0 auto; display: flex" v-cloak>
@@ -109,6 +109,7 @@
                     {role: 'user', name: 'user', message: '这是一这是这是一段文字文这是一段文字文这是一段文字文一段文字文字'},
                     {role: 'bot', name: 'bot3', message: '这是一段这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字文字',  responses: {bot1: {label:""}, bot2: {label:""}, bot3: {label:""}}, label:"", best_response_name: ""},
                 ],
+                user_name: "",
                 messages: [],
                 user_input: "",
                 bot_outputs: ['', '', ''],
@@ -155,6 +156,8 @@
                     this.mode = 'group'
                 }
                 // this.messages = this.base_messages
+                user_text = document.getElementById('user_login').innerText
+                this.user_name = user_text.substring(5, user_text.length)
                 this.get_bot_info()
             },
             methods: {
@@ -219,7 +222,7 @@
                         )
                         var self = this
                         send_data = {
-                            "username": '123',
+                            "username": self.user_name,
                             "user_post": self.user_input,
                             "chat_mode": self.mode
                         }

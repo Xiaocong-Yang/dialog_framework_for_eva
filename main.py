@@ -7,6 +7,7 @@ import random
 import requests
 from utils import MultiAPIs
 import time
+# from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.secret_key = 'large scale pre-training project'
@@ -15,6 +16,7 @@ names = []
 test_number = 0
 api_controller = MultiAPIs('./api_config.json')
 bot_names = api_controller.get_bot_names()
+# socketio = SocketIO(app, threaded=True)
 
 @app.route('/')
 def index():
@@ -52,6 +54,8 @@ def logout():
 @app.route('/multi')
 def multi():
 	user = session.get('username')
+	if not user:
+		return render_template('login.html')
 	dialog_history = session.get('dialog_history')
 	if not dialog_history:
 		dialog_history = []
@@ -65,6 +69,8 @@ def multi():
 @app.route('/single')
 def single():
 	user = session.get('username')
+	if not user:
+		return render_template('login.html')
 	dialog_history = session.get('dialog_history')
 	if not dialog_history:
 		dialog_history = []
@@ -78,6 +84,8 @@ def single():
 @app.route('/group')
 def group():
 	user = session.get('username')
+	if not user:
+		return render_template('login.html')
 	dialog_history = session.get('dialog_history')
 	if not dialog_history:
 		dialog_history = []
@@ -131,7 +139,7 @@ def send_message():
 		"message": 123123, 
 		}
 	start_time = time.time()
-	post_data = {'user_post': user_post}
+	post_data = {'user_post': user_post, 'history': []}
 	print(f'user input: {user_post}')
 	if chat_mode == 'single':
 		single_bot_name = request.form['single_bot_name']
@@ -156,4 +164,5 @@ def send_message():
 	return ret
 	
 if __name__ == '__main__':
+	# socketio.run(app, debug=True, host='0.0.0.0', port=5000)
 	app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
