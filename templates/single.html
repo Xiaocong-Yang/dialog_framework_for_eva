@@ -27,8 +27,8 @@
 {% endblock %}
 
 {% block left_content %}
-<div style="width: 80%;margin-left: 10%">
-    <label for="target_single_bot" style="font-size: 20px;">请选择你要对话的机器人</label>
+<div style="width: 80%;margin-left: 15%">
+    <label for="target_single_bot" style="font-size: 20px;">请选择机器人</label>
     <select v-model="selected_single_bot_idx"  style="font-size: 20px;">
         <option v-for="item, i in bot_names" :value="i">{item}</option>
     </select>
