@@ -216,7 +216,7 @@
                         index = this.selected_single_bot_idx
                     }
                     let response_name = names[index]
-                    if (response_name !== null) {
+                    if (response_name !== null && this.mode !== 'chat') {
                         this.messages.push(
                             {role: 'loading'}
                         )
