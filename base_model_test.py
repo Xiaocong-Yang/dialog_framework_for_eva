@@ -8,7 +8,7 @@ app = Flask(__name__)
 def bert_call():
     user_utterance = request.form.get('user_post')
     print(f'BEFRT get user utterance: {user_utterance}')
-    sleep(random.choice([0,1,2]))
+    # sleep(random.choice([0,1,2]))
     return {
         'response': "这是模拟BOT1模型给出的一条测试回复，是调用了系统接口得到的。",
         'confidence': 0.0,
@@ -19,7 +19,7 @@ def bert_call():
 def gpt_call():
     user_utterance = request.form.get('user_post')
     print(f'GPT get user utterance: {user_utterance}')
-    sleep(random.choice([0,1,2]))
+    # sleep(random.choice([0,1,2]))
     return {
         'response': "这是模拟BOT2模型给出的一条测试回复，是调用了系统接口得到的。",
         'confidence': 0.0,
@@ -30,7 +30,7 @@ def gpt_call():
 def t5_call():
     user_utterance = request.form.get('user_post')
     print(f'T5 get user utterance: {user_utterance}')
-    sleep(random.choice([0,1,2]))
+    # sleep(random.choice([0,1,2]))
     return {
         'response': "这是模拟BOT3模型给出的一条测试回复，是调用了系统接口得到的。",
         'confidence': 0.0,

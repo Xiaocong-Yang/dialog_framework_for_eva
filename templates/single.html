@@ -28,9 +28,9 @@
 
 {% block left_content %}
 <div style="width: 80%;margin-left: 15%">
-    <label for="target_single_bot" style="font-size: 20px;">请选择机器人</label>
-    <select v-model="selected_single_bot_idx"  style="font-size: 20px;">
-        <option v-for="item, i in bot_names" :value="i">{item}</option>
+    <label for="target_single_bot" style="font-size: 18px;margin-left: 80px;">请选择机器人</label><br>
+    <select v-model="selected_single_bot_idx"  style="font-size: 20px; margin-left: 35px; width: 200px;">
+        <option v-for="item, i in bot_names" :value="i">{bot_info[item].name}</option>
     </select>
 </div>
 <img v-if="selected_single_bot_idx > -1" :src="'/static/imgs/' + bot_names[selected_single_bot_idx] + '.png'" style='width: 100px;;height: 100px; margin-left: 35%; margin-top: 10px;'>

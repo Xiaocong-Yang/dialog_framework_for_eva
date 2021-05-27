@@ -3,6 +3,7 @@ import json
 import requests
 import time
 import random
+import traceback
 
 class MyThread(threading.Thread):
     def __init__(self,func,args,name=''):
@@ -22,6 +23,45 @@ class APICall:
         self.name = name
         self.url = url
         self.lock = threading.Lock()
+        if self.name.lower() == 'cpm':
+            self.prompt = '“{}”“'
+        elif self.name.lower() == 'wenhuiqadialog':
+            self.prompt = '以下是一段对话：“{}”“'
+        elif self.name.lower() == 'wenhuichatdialog':
+            self.prompt = '以下是一段对话：“{}”“'
+        self.headers = {"Content-Type": "application/json;charset=UTF-8"}
+    def _response_clean(self, response):
+        if self.name == 'cpm':
+            idx = response.find('”')
+            if idx >= 0:
+                return response[:idx].strip()
+            else:
+                return response
+        elif self.name == 'wenhuiqadialog':
+            idx = response.find('”')
+            if idx >= 0:
+                return response[:idx].strip()
+            else:
+                return response
+        elif self.name == 'wenhuichatdialog':
+            idx = response.find('”“')
+            res = response[idx+2:].strip()
+            idx = res.find('”')
+            if idx >= 0:
+                return res[:idx].strip()
+            else:
+                return res
+        return response
+
+    def _user_post_process(self, user_post):
+        if self.name == 'cpm':
+            return self.prompt.format(user_post)
+        elif self.name == 'wenhuiqadialog':
+            return self.prompt.format(user_post)
+        elif self.name == 'wenhuichatdialog':
+            return self.prompt.format(user_post)
+        return user_post
+
     def call_api(self, data):
         """调用模型的API，返回response"""
         print(f'api[{self.name}] Start at {time.time()}')
@@ -30,8 +70,19 @@ class APICall:
             try:
                 ret = self._call_api(data)
                 ret = json.loads(ret)
-            except:
+                # 处理不同的输出情况
+                if self.name == 'wenhuiqa':
+                    ret['response'] = ret['result']['content']
+                elif self.name == 'wenhuichat':
+                    ret['response'] = ret['result']
+                elif self.name == 'wenhuiqadialog':
+                    ret['response'] = ret['result']['content']
+                elif self.name == 'wenhuichatdialog':
+                    ret['response'] = ret['result']
+                ret['response'] = self._response_clean(ret['response'])
+            except Exception as e:
                 print(f'Error: APICall.call_api(), name: {self.name}, url: {self.url}')
+                traceback.print_exc()
                 ret = {"response": f"这是从后台返回的一条测试语句，如果看到这一句话说明底层接口{self.name}::{self.url}调用失败。", "name": self.name}
             finally:
                 self.lock.release()
@@ -41,9 +92,22 @@ class APICall:
         return ret
             
     def _call_api(self, data):
-        pyload = {"user_post": data['user_post']}
+        ## 对输入的数据做预处理
+        user_post = self._user_post_process(data['user_post'])
+        pyload = {"user_post": user_post}
         # print(f'payload: {pyload}')
-        response = requests.post(self.url, data=pyload).text
+        if self.name == 'cpm':
+            pyload['length'] = 30
+        if self.name == 'wenhuiqa':
+            response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "qa", "content": user_post})).text
+        elif self.name == 'wenhuichat':
+            response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "chat", "content": user_post})).text
+        elif self.name == 'wenhuiqadialog':
+            response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "qa", "content": user_post})).text
+        elif self.name == 'wenhuichatdialog':
+            response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "chat", "content": user_post})).text
+        else:
+            response = requests.post(self.url, data=pyload).text
         return response
 
 class MultiAPIs:

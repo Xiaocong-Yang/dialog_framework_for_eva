@@ -122,7 +122,8 @@
                 // for single chat mode
                 selected_single_bot_idx: -1,
                 bot_names: [],
-                bot_info: {}
+                bot_info: {},
+                bot_order: [],
             },
             watch: {
                 messages: function() {
@@ -159,6 +160,22 @@
                 user_text = document.getElementById('user_login').innerText
                 this.user_name = user_text.substring(5, user_text.length)
                 this.get_bot_info()
+                if (this.mode === 'group') {
+                    for(var i = 0; i < 50; i++) {
+                        var self = this
+                        (function(i) {
+                            setTimeout(function() {
+                                console.log(i);
+                                last_uttr = ''
+                                // if (thselfis.messages.length != 0) {
+                                //     last_uttr = self.messages[-1].message
+                                // }
+                                console.log('123')
+                                self.send_group_message(last_uttr)
+                            }, (i*1) * 1000);
+                        })(i)
+                    }
+                }
             },
             methods: {
                 scrollToBottom: function () {
@@ -195,6 +212,43 @@
                         }
                     });
                 },
+                send_group_message: function(msg) {
+                    var self = this
+                    send_data = {
+                        "username": self.user_name,
+                        "user_post": msg,
+                        "chat_mode": "single"
+                    }
+                    let index = Math.floor((Math.random() * this.bot_names.length));
+                    send_data.single_bot_name = this.bot_names[index]
+                    console.log(send_data.single_bot_name)
+                    $.ajax({
+                        type: 'POST',
+                        url: '/send_message',
+                        data: send_data,
+                        async: true,
+                        success: function (data) {
+                            if (data.status !== 0) {
+                            } else {
+                                self.messages.pop();
+                                self.messages.push(
+                                    {
+                                        role: 'bot', 
+                                        label: "",
+                                        name: data.bot_name, 
+                                        message: data.response,
+                                        responses: data.responses,
+                                        best_response_name: ''
+                                    }
+                                )
+                            }
+                        },
+                        error: function () {
+                            alert("服务器出错了！");
+                        }
+                    });
+                        
+                },
                 send_message: function() {
                     if (this.messages.length > 0 && this.messages[this.messages.length-1].role == 'loading') {
                         return
@@ -210,12 +264,12 @@
                     this.messages.push(
                         {role: 'user', name: 'user', message: this.user_input}
                     )
-                    names = ['bot1', 'bot2', 'bot3']  //, null]
-                    let index = Math.floor((Math.random() * names.length));
+                    // names = ['bot1', 'bot2', 'bot3']
+                    let index = Math.floor((Math.random() * this.bot_names.length));
                     if (this.mode === 'single') {
                         index = this.selected_single_bot_idx
                     }
-                    let response_name = names[index]
+                    let response_name = this.bot_names[index]
                     if (response_name !== null && this.mode !== 'chat') {
                         this.messages.push(
                             {role: 'loading'}
