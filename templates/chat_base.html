@@ -261,6 +261,13 @@
                     if  (this.user_input == 'undefined' || !this.user_input || !/[^\s]/.test(this.user_input)) {
                         return
                     }
+                    this.user_input = this.user_input.trim()
+                    // 获取对话历史信息
+                    var dialog_history = []
+                    for (var i=0; i<this.messages.length; i++) {
+                        dialog_history.push(this.messages[i].message)
+                    }
+                    console.log(dialog_history)
                     this.messages.push(
                         {role: 'user', name: 'user', message: this.user_input}
                     )
@@ -278,8 +285,10 @@
                         send_data = {
                             "username": self.user_name,
                             "user_post": self.user_input,
-                            "chat_mode": self.mode
+                            "chat_mode": self.mode,
+                            "history": JSON.stringify([])
                         }
+                        if (dialog_history.length > 0) {send_data.history = JSON.stringify(dialog_history)}
                         if (this.mode === 'single') {
                             send_data.single_bot_name = this.bot_names[this.selected_single_bot_idx]
                         }

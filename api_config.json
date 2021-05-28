@@ -1,52 +1,50 @@
 {
-    "bot1": {
-        "url": "http://localhost:5002/bot1",
-        "name": "机器人一号",
-        "desc": "bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述bot1的系统描述"
-    },
-    "bot2": {
-        "url": "http://localhost:5002/bot2",
-        "name": "机器人二号",
-        "desc": "bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述bot2的系统描述"
-    },
-    "bot3": {
-        "url": "http://localhost:5002/bot3",
-        "name": "机器人三号_加长名字",
+    "cdial": {
+        "url": "http://127.0.0.1:5012/bot3",
+        "name": "CDIAL-GPT",
+        "use_history": false,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "cpm": {
         "url": "http://106.12.166.20:8888/cpm_gpt_lm",
         "name": "CPM",
+        "use_history": true,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "eva": {
         "url": "http://106.12.166.20:8888/eva",
         "name": "文滔",
+        "use_history": true,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "wenlan": {
-        "url": "http://106.12.166.20:8888/eva",
+        "url": "http://120.92.50.21:6175/retrieval",
         "name": "文澜-赋魂",
+        "use_history": false,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "wenhuiqa": {
         "url": "http://lab.aminer.cn/isoa-2021/gpt",
         "name": "文汇-问答",
+        "use_history": false,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "wenhuiqadialog": {
         "url": "http://lab.aminer.cn/isoa-2021/gpt",
         "name": "文汇-问答-模拟对话",
+        "use_history": true,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "wenhuichat": {
         "url": "http://lab.aminer.cn/isoa-2021/gpt",
         "name": "文汇-长聊天",
+        "use_history": false,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     },
     "wenhuichatdialog": {
         "url": "http://lab.aminer.cn/isoa-2021/gpt",
         "name": "文汇-长聊天-模拟对话",
+        "use_history": true,
         "desc": "bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述bot3的系统描述"
     }
 }

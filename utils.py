@@ -4,6 +4,7 @@ import requests
 import time
 import random
 import traceback
+from text_censor import text_censor
 
 class MyThread(threading.Thread):
     def __init__(self,func,args,name=''):
@@ -19,18 +20,20 @@ class MyThread(threading.Thread):
         return self.res
 
 class APICall:
-    def __init__(self, name, url):
+    def __init__(self, name, url, use_history=False):
         self.name = name
         self.url = url
+        self.use_history = use_history
         self.lock = threading.Lock()
         if self.name.lower() == 'cpm':
-            self.prompt = '“{}”“'
+            self.prompt = '以下是一段对话：“{}”“'
         elif self.name.lower() == 'wenhuiqadialog':
             self.prompt = '以下是一段对话：“{}”“'
         elif self.name.lower() == 'wenhuichatdialog':
             self.prompt = '以下是一段对话：“{}”“'
         self.headers = {"Content-Type": "application/json;charset=UTF-8"}
-    def _response_clean(self, response):
+    def _response_clean(self, response, send_post=''):
+        print('原始输出：' + response)
         if self.name == 'cpm':
             idx = response.find('”')
             if idx >= 0:
@@ -44,30 +47,66 @@ class APICall:
             else:
                 return response
         elif self.name == 'wenhuichatdialog':
-            idx = response.find('”“')
-            res = response[idx+2:].strip()
-            idx = res.find('”')
+            response = response[len(send_post):]
+            idx = response.find('”')
             if idx >= 0:
-                return res[:idx].strip()
+                return response[:idx].strip()
             else:
-                return res
+                return response
         return response
 
-    def _user_post_process(self, user_post):
+    def _user_post_process(self, user_post, history=[]):
+        print('对话历史', history)
         if self.name == 'cpm':
-            return self.prompt.format(user_post)
+            single_post = self.prompt.format(user_post)
+            if self.use_history and len(history) > 0:
+                multi_post = single_post[:8] + '“' + '”“'.join(history) + '”' + single_post[8:]
+                return multi_post
+            else:
+                return single_post
         elif self.name == 'wenhuiqadialog':
-            return self.prompt.format(user_post)
+            single_post = self.prompt.format(user_post)
+            if self.use_history and len(history) > 0:
+                multi_post = single_post[:8] + '“' + '”“'.join(history) + '”' + single_post[8:]
+                return multi_post
+            else:
+                return single_post
         elif self.name == 'wenhuichatdialog':
-            return self.prompt.format(user_post)
+            single_post = self.prompt.format(user_post)
+            if self.use_history and len(history) > 0:
+                multi_post = single_post[:8] + '“' + '”“'.join(history) + '”' + single_post[8:]
+                return multi_post
+            else:
+                return single_post
+        elif self.name == 'eva':
+            single_post = user_post
+            if self.use_history and len(history) > 0:
+                multi_post = '\t\t'.join(history) + '\t\t' + single_post
+                return multi_post
+            else:
+                return single_post
         return user_post
+
+    def get_safe_response(self):
+        candidate_responses = [
+            '这个问题我还回答不了哦~',
+            '没有听懂您的问题，可以换个说法吗？'
+        ]
+        return random.choice(candidate_responses)
 
     def call_api(self, data):
         """调用模型的API，返回response"""
         print(f'api[{self.name}] Start at {time.time()}')
         ret = None
+        ## 敏感文本检测
+        user_post = data['user_post']
+        if not text_censor(user_post):
+            print(f'拦截敏感输入【{user_post}】')
+            return {'response': self.get_safe_response(), 'name': self.name}
         if self.lock.acquire(timeout=5):
             try:
+                user_post = self._user_post_process(data['user_post'], history=data['history'])
+                data['user_post'] = user_post
                 ret = self._call_api(data)
                 ret = json.loads(ret)
                 # 处理不同的输出情况
@@ -79,22 +118,34 @@ class APICall:
                     ret['response'] = ret['result']['content']
                 elif self.name == 'wenhuichatdialog':
                     ret['response'] = ret['result']
-                ret['response'] = self._response_clean(ret['response'])
+                elif self.name == 'wenlan':
+                    ret['response'] = ret['sentence']
+                ret['response'] = self._response_clean(ret['response'], user_post)
             except Exception as e:
                 print(f'Error: APICall.call_api(), name: {self.name}, url: {self.url}')
                 traceback.print_exc()
-                ret = {"response": f"这是从后台返回的一条测试语句，如果看到这一句话说明底层接口{self.name}::{self.url}调用失败。", "name": self.name}
+                # ret = {"response": f"这是从后台返回的一条测试语句，如果看到这一句话说明底层接口{self.name}::{self.url}调用失败。", "name": self.name}
+                ret = {"response": self.get_safe_response(), "name": self.name}
             finally:
                 self.lock.release()
         else:
             ret = {"response": f"这是从后台返回的一条测试语句，如果看到这一句话说明底层接口{self.name}::{self.url}当前在线用户过多，排队超时。", "name": self.name}
+        # 对回复进行过滤
+        if not text_censor(ret['response']):
+            print('模型输出触发敏感词过滤', ret['response'])
+            ret['response'] = self.get_safe_response()
+        # 对模型的错误进行过滤
+        if ret['response'].lower().strip() == 'bad input text':
+            print('触发后端模型敏感词过滤')
+            ret['response'] = self.get_safe_response()
         print(f'api[{self.name}] End at {time.time()}')
         return ret
             
     def _call_api(self, data):
         ## 对输入的数据做预处理
-        user_post = self._user_post_process(data['user_post'])
-        pyload = {"user_post": user_post}
+        pyload = {"user_post": data['user_post']}
+        print('最终输入：' + data['user_post'])
+        user_post = data['user_post']
         # print(f'payload: {pyload}')
         if self.name == 'cpm':
             pyload['length'] = 30
@@ -106,6 +157,8 @@ class APICall:
             response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "qa", "content": user_post})).text
         elif self.name == 'wenhuichatdialog':
             response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "chat", "content": user_post})).text
+        elif self.name == 'wenlan':
+            response = requests.post(self.url, files={'local_img':open('static/imgs/0.jpeg', 'rb')}).text
         else:
             response = requests.post(self.url, data=pyload).text
         return response
@@ -116,7 +169,7 @@ class MultiAPIs:
         config = json.load(open(config_path))
         self.apis = {}
         for name in config.keys():
-            self.apis[name] = APICall(name, config[name]['url'])
+            self.apis[name] = APICall(name, config[name]['url'], config[name]['use_history'])
         self.bot_names = list(self.apis.keys())
         self.bot_info = config
     

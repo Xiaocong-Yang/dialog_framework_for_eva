@@ -134,12 +134,14 @@ def send_message():
 	global bot_names
 	user_post = request.form['user_post']
 	chat_mode = request.form['chat_mode']
+	history = request.form['history']
+	history = json.loads(history)
 	ret = {
 		"status": 0, 
 		"message": 123123, 
 		}
 	start_time = time.time()
-	post_data = {'user_post': user_post, 'history': []}
+	post_data = {'user_post': user_post, 'history': history}
 	print(f'user input: {user_post}')
 	if chat_mode == 'single':
 		single_bot_name = request.form['single_bot_name']
