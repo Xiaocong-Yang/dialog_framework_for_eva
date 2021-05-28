@@ -46,6 +46,11 @@ def login():
 	print(f'user: {username} login')
 	return redirect(url_for('index'))
 
+@app.route('/send_image', methods=['POST'])
+def send_image(): 
+	base64 = request.form['base64']
+	return redirect(url_for('index'))
+
 @app.route('/logout')
 def logout():
 	session.pop('username')
@@ -142,12 +147,14 @@ def send_message():
 		}
 	start_time = time.time()
 	post_data = {'user_post': user_post, 'history': history}
-	print(f'user input: {user_post}')
+	# print(f'user input: {user_post}')
 	if chat_mode == 'single':
 		single_bot_name = request.form['single_bot_name']
 		ret['bot_name'] = single_bot_name
 		ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
 	elif chat_mode == 'multi':
+		response_bot_name = request.form['response_bot_name']
+		post_data['response_bot_name'] = response_bot_name
 		rank_response = api_controller.call_api_by_rank(post_data)
 		ret['bot_name'] = rank_response['bot_name']
 		ret['responses'] = rank_response['responses']

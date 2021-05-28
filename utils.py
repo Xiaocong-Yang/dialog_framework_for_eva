@@ -5,6 +5,9 @@ import time
 import random
 import traceback
 from text_censor import text_censor
+import base64
+import uuid
+import copy
 
 class MyThread(threading.Thread):
     def __init__(self,func,args,name=''):
@@ -33,7 +36,7 @@ class APICall:
             self.prompt = '以下是一段对话：“{}”“'
         self.headers = {"Content-Type": "application/json;charset=UTF-8"}
     def _response_clean(self, response, send_post=''):
-        print('原始输出：' + response)
+        # print('原始输出：' + response)
         if self.name == 'cpm':
             idx = response.find('”')
             if idx >= 0:
@@ -56,7 +59,7 @@ class APICall:
         return response
 
     def _user_post_process(self, user_post, history=[]):
-        print('对话历史', history)
+        # print('对话历史', history)
         if self.name == 'cpm':
             single_post = self.prompt.format(user_post)
             if self.use_history and len(history) > 0:
@@ -100,7 +103,7 @@ class APICall:
         ret = None
         ## 敏感文本检测
         user_post = data['user_post']
-        if not text_censor(user_post):
+        if not text_censor(user_post) and self.name != 'wenlan':
             print(f'拦截敏感输入【{user_post}】')
             return {'response': self.get_safe_response(), 'name': self.name}
         if self.lock.acquire(timeout=5):
@@ -158,10 +161,34 @@ class APICall:
         elif self.name == 'wenhuichatdialog':
             response = requests.post(self.url, headers=self.headers, data=json.dumps({'token': 'b7680795f940de1e04e7e71e16e59d2e', "app": "chat", "content": user_post})).text
         elif self.name == 'wenlan':
-            response = requests.post(self.url, files={'local_img':open('static/imgs/0.jpeg', 'rb')}).text
+            base64_input = user_post
+            prefixs = [
+                'data:image/jpeg;base64,',
+                'data:image/jpg;base64,',
+                'data:image/png;base64,'
+            ]
+            img_type = ''
+            for item in prefixs:
+                if base64_input.startswith(item):
+                    img_type = item.split('image/')[1].split(';')[0]
+                base64_input = base64_input.replace(item, '')
+            # print('image type', img_type)
+            base64_input = bytes(base64_input, encoding = "utf8")
+            # print(base64_input[:100])
+            img_data = base64.b64decode(base64_input)
+            tmp_name = get_time_stamp() + '_' + uuid.uuid4().hex + '.' + img_type
+            # print('image_name', tmp_name)
+            file = open('tmp/img/'+tmp_name, 'wb')  
+            file.write(img_data)
+            file.close()
+            input_stream = open('tmp/img/'+tmp_name, 'rb')
+            response = requests.post(self.url, files={'local_img':input_stream}).text
         else:
             response = requests.post(self.url, data=pyload).text
         return response
+
+def get_time_stamp():
+    return str(int(time.time()))
 
 class MultiAPIs:
     def __init__(self, config_path="./api_config.json"):
@@ -176,7 +203,7 @@ class MultiAPIs:
     def call_api_by_name(self, name, data):
         """基于当前的结果去修改API"""
         api = self.apis[name]
-        return api.call_api(data)
+        return api.call_api(copy.deepcopy(data))
 
     def call_all_apis(self, data):
         responses = {}
@@ -202,7 +229,8 @@ class MultiAPIs:
         """调用排序模块，返回多模型中的一个回复"""
         responses = self.call_all_apis(data)
         # 排序算法
-        target_name = random.choice(self.bot_names)
+        # target_name = random.choice(self.bot_names)
+        target_name = data['response_bot_name']
         ret = {
             'bot_name': target_name,
             'responses': responses,

@@ -108,6 +108,7 @@ def image_cencor(image_path):
     image_url = IMAGE_CENSOR + "?access_token=" + token
     assert os.path.exists(image_path), 'Image path does not exists. '
     file_content = read_file(image_path)
+    print(base64.b64encode(file_content))
     result = json.loads(request(image_url, urlencode({'image': base64.b64encode(file_content)})))
     output = {}
     if result['conclusionType'] == 1:
@@ -129,4 +130,4 @@ def image_cencor(image_path):
                 # 15:EasyDL自定义模型、16：敏感旗帜标志识别、21：不良场景识别、24：直播场景审核
 
 if __name__ == '__main__':
-    print(image_cencor('picture/political/[www.google.com][440].jpg'))
+    print(image_cencor('static/imgs/0.jpeg'))
