@@ -62,7 +62,8 @@ def show_test_result():
 		turn_str = f"<tr><td>{user_msg['message']}</td><td>{sys_msg['message']}</td><td>{sys_msg['is_heshi']}</td><td>{sys_msg['is_juti']}</td></tr>"
 		result += '\n' + turn_str
 	result = result.strip()
-	result = '<html><body><table><tr><td>用户</td><td>系统</td><td>合适</td><td>具体</td></tr>' + result + '</table></body>'
+	# result = '<html><body><table><tr><td>用户</td><td>系统</td><td>合适</td><td>具体</td></tr>' + result + '</table></body>'
+	result = '<html><body><table>' + result + '</table></body>'
 	return {
 		"status": 0, 
 		"message": result}
