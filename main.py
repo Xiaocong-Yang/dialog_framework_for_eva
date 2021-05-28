@@ -51,6 +51,26 @@ def logout():
 	session.pop('username')
 	return redirect(url_for('index'))
 
+@app.route('/show_test_result', methods=['POST'])
+def show_test_result():
+	messages = request.form['messages']
+	messages = json.loads(messages)
+	result = ''
+	for i in range(len(messages) // 2):
+		user_msg = messages[i*2]
+		sys_msg = messages[i*2+1]
+		turn_str = f"<tr><td>{user_msg['message']}</td><td>{sys_msg['message']}</td><td>{sys_msg['is_heshi']}</td><td>{sys_msg['is_juti']}</td></tr>"
+		result += '\n' + turn_str
+	result = result.strip()
+	result = '<html><body><table><tr><td>用户</td><td>系统</td><td>合适</td><td>具体</td></tr>' + result + '</table></body>'
+	return {
+		"status": 0, 
+		"message": result}
+
+@app.route('/show_text/<content>')
+def show_text(content):
+	return content
+
 @app.route('/multi')
 def multi():
 	user = session.get('username')
@@ -167,4 +187,4 @@ def send_message():
 	
 if __name__ == '__main__':
 	# socketio.run(app, debug=True, host='0.0.0.0', port=5000)
-	app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
+	app.run(host="0.0.0.0", port=5001, debug=True, threaded=True)

@@ -59,8 +59,8 @@
                             <img v-if="mode == 'multi'" class="bot_img" :src="'/static/imgs/turing.png'" :alt="message.role" title="多模型融合">
                             <div class="bot_message"><p>{message.message}</p>
                                 <p>
-                                    <span v-if="messages[message_idx].label == 'bot'" style='color: red; margin-left: 10px;'>&#9785像机器人</span> 
-                                    <span v-if="messages[message_idx].label == 'human'" style='color: green; margin-left: 10px;'>&#9786像人类</span>
+                                    <span v-if="messages[message_idx].is_heshi == 1" style='color: green; margin-left: 10px;'>&#9786回答合适</span> 
+                                    <span v-if="messages[message_idx].is_juti == 1" style='color: green; margin-left: 10px;'>&#9786回答具体</span>
                                 </p>
                             </div>
                         </div>
@@ -68,8 +68,8 @@
                             <button v-if="mode == 'multi'" :id="message_idx+'show_all_outputs'" type="button" class="btn btn-default btn-sm" @click="show_all_outputs">显示全部</button>
                             <div v-if="mode != 'multi'" style="width:70px;"></div>
                             <div style="margin-left: 35px; font-size: 15px; margin-top: 5px; margin-right: 5px;">判断: </div>
-                            <button :id="message_idx+'_like_human'" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="like_human">人类</button>
-                            <button :id="message_idx+'_like_bot'" type="button" class="btn btn-danger btn-sm" @click="like_bot">机器人</button>
+                            <button :id="message_idx+'_like_human'" type="button" class="btn btn-info btn-sm" style="margin-right: 5px;" @click="like_human">合适</button>
+                            <button :id="message_idx+'_like_bot'" type="button" class="btn btn-info btn-sm" @click="like_bot">具体</button>
                         </div>
                     </div>
                     <div v-if="message.role == 'loading'" style="height: 20px; text-align: center; margin-bottom: 10px;">
@@ -78,8 +78,9 @@
                     </div>
                 </div>
             </div>
+            <button class="btn" style="font-size: 20px; width: 47%; margin-right: 5%; margin-left: 12px;margin-top: 14px;" @click="test_result">测试结果汇总</button>
             <div style="border: 1px solid wight; width: 95%; margin-left: 2%; height: 30%">
-                <textarea id="user_input_area" class="form-control" rows="3" style="width: 100%; margin-top: 3%; height: 60%; resize: none; font-size: 20px;" v-model="user_input"></textarea>
+                <textarea id="user_input_area" class="form-control" rows="3" style="width: 100%; margin-top: 3%; height: 60%; resize: none; font-size: 20px;" v-model="user_input" onkeypress="onKeyPress(event)"></textarea>
                 <div style="border: 1px solid wight; width: 40%; float: right; margin-top: 2%; height: 25%; display: flex">
                     <button class="btn" style="font-size: 20px; width: 47%; margin-right: 5%" @click="clear_history">清空</button>
                     <button class="btn btn-primary" style="font-size: 20px; width: 47%" @click="send_message">发送</button>
@@ -93,6 +94,54 @@
             // var chat_area = document.getElementById('chat_area');
             // chat_area.scrollTop = chat_area.scrollHeight;
         });
+
+        function onKeyPress(event) {
+            event = event || window.event;
+            if (event.keyCode == 13) {
+                event.returnValue = false;
+                vm.send_message()
+            }
+        }
+
+        window.alert = function(str)
+        {
+            var shield = document.createElement("DIV");
+            shield.id = "shield";
+            shield.style.position = "absolute";
+            shield.style.left = "50%";
+            shield.style.top = "50%";
+            shield.style.width = "280px";
+            shield.style.height = "150px";
+            shield.style.marginLeft = "-140px";
+            shield.style.marginTop = "-110px";
+            shield.style.zIndex = "25";
+            var alertFram = document.createElement("DIV");
+            alertFram.id="alertFram";
+            alertFram.style.position = "absolute";
+            alertFram.style.width = "280px";
+            alertFram.style.height = "150px";
+            alertFram.style.left = "50%";
+            alertFram.style.top = "50%";
+            alertFram.style.marginLeft = "-140px";
+            alertFram.style.marginTop = "-110px";
+            alertFram.style.textAlign = "center";
+            alertFram.style.lineHeight = "150px";
+            alertFram.style.zIndex = "300";
+            strHtml = "<ul style=\"list-style:none;margin:0px;padding:0px;width:100%\">\n";
+            strHtml += " <li style=\"background:#626262;text-align:left;padding-left:20px;font-size:14px;font-weight:bold;height:25px;line-height:25px;border:1px solid #F9CADE;color:white\">[系统提示：]</li>\n";
+            strHtml += " <li style=\"background:#787878;text-align:center;font-size:12px;height:95px;line-height:95px;border-left:1px solid #F9CADE;border-right:1px solid #F9CADE;color:#DCC722\">"+str+"</li>\n";
+            strHtml += " <li style=\"background:#626262;text-align:center;font-weight:bold;height:30px;line-height:25px; border:1px solid #F9CADE;\"><input type=\"button\" value=\"确 定\" onclick=\"doOk()\" style=\"width:80px;height:20px;background:#626262;color:white;border:1px solid white;font-size:14px;line-height:20px;outline:none;margin-top: 4px\"/></li>\n";
+            strHtml += "</ul>\n";
+            alertFram.innerHTML = strHtml;
+            document.body.appendChild(alertFram);
+            document.body.appendChild(shield);
+            this.doOk = function(){
+                alertFram.style.display = "none";
+                shield.style.display = "none";
+            }
+            alertFram.focus();
+            document.body.onselectstart = function(){return false;};
+        }
         function sleep(time) {
             return new Promise((resolve) => setTimeout(resolve, time));
         }
@@ -184,6 +233,30 @@
                         div.scrollTop = div.scrollHeight
                     })
                 },
+                test_result: function() {
+                    if (this.messages.length > 0 && this.messages[this.messages.length-1].role == 'loading') {
+                        alert('请等待模型回复')
+                        return
+                    }
+                    var self = this
+                    $.ajax({
+                        type: 'POST',
+                        url: '/show_test_result',
+                        data: {'messages': JSON.stringify(self.messages)},
+                        async: true,
+                        success: function (data) {
+                            if (data.status !== 0) {
+                            } else {
+                                // alert(data.message)
+                                win = window.open( 'about:blank','');     
+                                win.document.write(data.message)
+                            }
+                        },
+                        error: function () {
+                            alert("服务器出错了！");
+                        }
+                    });
+                },
                 clear_chat: function() {
                     this.messages = []
                     this.user_input = ''
@@ -269,7 +342,7 @@
                     }
                     console.log(dialog_history)
                     this.messages.push(
-                        {role: 'user', name: 'user', message: this.user_input}
+                        {role: 'user', name: 'user', message: this.user_input, 'is_heshi': 0, 'is_juti': 0}
                     )
                     // names = ['bot1', 'bot2', 'bot3']
                     let index = Math.floor((Math.random() * this.bot_names.length));
@@ -308,7 +381,9 @@
                                             name: data.bot_name, 
                                             message: data.response,
                                             responses: data.responses,
-                                            best_response_name: ''
+                                            best_response_name: '', 
+                                            'is_heshi': 0, 
+                                            'is_juti': 0
                                         }
                                     )
                                 }
@@ -345,6 +420,7 @@
                     id = e.srcElement.id
                     turn_idx = parseInt(id.substring(0, id.length-11))
                     // alert('第' + turn_idx + '轮对话：更像人类')
+                    this.messages[turn_idx].is_heshi = 1-this.messages[turn_idx].is_heshi
                     this.messages[turn_idx].label = "human"
                     this.change_mark_label()
                 },
@@ -352,6 +428,7 @@
                     id = e.srcElement.id
                     turn_idx = parseInt(id.substring(0, id.length-9))
                     // alert('第' + turn_idx + '轮对话：更像机器人')
+                    this.messages[turn_idx].is_juti = 1-this.messages[turn_idx].is_juti
                     this.messages[turn_idx].label = "bot"
                     this.change_mark_label()
                 },
