@@ -121,11 +121,11 @@ def text_censor(sent):
     # print(output)
     if output['conclusionType'] == 1:
         return True
-    elif output['conclusionType'] == 2:
-        return False
-    elif output['conclusionType'] == 3:
+    # elif output['conclusionType'] == 2:
+    #     return False
+    elif output['conclusionType'] in [2,3]:
         if 'subType' in output:
-            bad_sub_types = [1, 2, 3]
+            bad_sub_types = [3]
             for bad_st in bad_sub_types:
                 if bad_st in output['subType']:
                     return False
