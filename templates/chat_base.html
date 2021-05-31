@@ -42,8 +42,10 @@
         <div class="container-fluid">
             <p class="navbar-text" style="width: 10px;"></p>
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">大规模预训练对话平台</a>
+                <a href='http://coai.cs.tsinghua.edu.cn/'><img style="max-height: 44px; margin-top: 3px;margin-right: 30px;margin-left: -30px;" src="static/imgs/coai_logo.png" ></a>
+                <a class="navbar-brand" style="float: right; margin-right: 20px;" href="#">大规模预训练对话平台</a>
             </div>
+            
             <div>
                 {% block nav_tabs %}
                 {% endblock %}
@@ -190,7 +192,7 @@
                 bot_info: {},
                 bot_order: [],
                 image_base64: null,
-                group_bots: ['cpm', 'eva', 'wenhuiqadialog', 'wenhuichatdialog']
+                group_bots: ['cpm', 'eva', 'wenhuiqadialog', 'cdial']
             },
             watch: {
                 messages: function() {

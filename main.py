@@ -184,23 +184,14 @@ def send_message_group():
 		"message": 123123, 
 		}
 	start_time = time.time()
+	single_bot_name = request.form['single_bot_name']
+	if single_bot_name	== 'wenhuiqadialog':
+		history = history[-6:]
 	post_data = {'user_post': user_post, 'history': history, 'mode': chat_mode}
 	# print(f'user input: {user_post}')
-	if chat_mode == 'single':
-		single_bot_name = request.form['single_bot_name']
-		ret['bot_name'] = single_bot_name
-		ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
-	elif chat_mode == 'multi':
-		response_bot_name = request.form['response_bot_name']
-		post_data['response_bot_name'] = response_bot_name
-		rank_response = api_controller.call_api_by_rank(post_data)
-		ret['bot_name'] = rank_response['bot_name']
-		ret['responses'] = rank_response['responses']
-		ret['response'] = rank_response['response']
-	else:  # group
-		single_bot_name = request.form['single_bot_name']
-		ret['bot_name'] = single_bot_name
-		ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
+	
+	ret['bot_name'] = single_bot_name
+	ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
 	if 'responses' in ret:
 		for key in ret['responses']:
 			ret['responses'][key]['label'] = ""
