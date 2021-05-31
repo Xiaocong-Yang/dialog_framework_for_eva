@@ -75,7 +75,7 @@
                         <img class="user_img" :src="'/static/imgs/' + message.name + '.png'" :alt="message.role">
                     </div>
                     <div v-if="message.role == 'user' && message.is_image" class="user_bubble">
-                        <div class="user_message" style='padding-bottom: 10px;'><img :src="message.message" style="max-height: 90px; display: inline-block;"></div>
+                        <img :src="message.message" class='bubble_img' style="max-height: 90px; display: inline-block;">
                         <img class="user_img" :src="'/static/imgs/' + message.name + '.png'" :alt="message.role">
                     </div>
                     <div v-if="message.role == 'bot'" class="bot_bubble">

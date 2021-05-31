@@ -56,3 +56,8 @@
     padding-left: 8px;
     padding-right: 8px;
 }
+
+.bubble_img {
+    margin-top: 10px;
+    border-radius: 3px;
+}
