@@ -472,7 +472,7 @@
                 group_loop: function() {
                     group_bots = this.group_bots
                     var interval = 5  // 每次调用后台接口间隔为5s
-                    var max_loop_num = 20
+                    var max_loop_num = 100
                     var times = parseInt(max_loop_num / group_bots.length)
                     console.log('group loop start!')
                     self = this
