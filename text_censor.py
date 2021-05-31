@@ -1,3 +1,34 @@
+Skip to content
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@Drackyyy 
+zz-jacob
+/
+dialog_framework
+Private
+3
+00
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+dialog_framework/text_censor.py /
+@zz-jacob
+zz-jacob 实现全部功能,剩下的任务是继续修改
+Latest commit 2c5b0ab 39 minutes ago
+ History
+ 1 contributor
+132 lines (107 sloc)  4.13 KB
+  
 import sys
 import json
 import base64
@@ -100,6 +131,10 @@ def text_cencor(text):
     text_url = TEXT_CENSOR + "?access_token=" + token
     result = json.loads(request(text_url, urlencode({'text': text})))
     output = {}
+    
+    if 'error_code' in result.keys():
+        result['conclusionType'] = 1
+        
     if result['conclusionType'] == 1:
         output['conclusionType'] = result['conclusionType']
         return output
