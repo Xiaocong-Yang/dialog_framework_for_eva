@@ -118,7 +118,7 @@ class APICall:
         if not text_censor(user_post) and self.name != 'wenlan':
             print(f'拦截敏感输入【{user_post}】')
             return {'response': self.get_safe_response(), 'name': self.name}
-        if self.lock.acquire(timeout=50):
+        if self.lock.acquire(timeout=500):
             try:
                 user_post = self._user_post_process(data['user_post'], history=data['history'], is_group=data['mode'] == 'group')
                 data['user_post'] = user_post
