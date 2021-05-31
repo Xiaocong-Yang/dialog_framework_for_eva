@@ -85,12 +85,15 @@ def request(url, data):
 
 
 def text_cencor(text):
-    assert type(text) == str, 'Input text must be of string type '
 
     token = fetch_token()
     text_url = TEXT_CENSOR + "?access_token=" + token
     result = json.loads(request(text_url, urlencode({'text': text})))
     output = {}
+    
+    if 'error_code' in result.keys():
+        result['conclusionType'] = 1
+        
     if result['conclusionType'] == 1:
         output['conclusionType'] = result['conclusionType']
         return output
@@ -116,4 +119,4 @@ def text_cencor(text):
         # 0:自定义文本白名单
 
 if __name__ == '__main__':
-    print(text_cencor('This is a test text. '))
+    print(text_cencor(' '))
