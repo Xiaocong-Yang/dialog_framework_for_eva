@@ -100,6 +100,10 @@ def text_cencor(text):
     text_url = TEXT_CENSOR + "?access_token=" + token
     result = json.loads(request(text_url, urlencode({'text': text})))
     output = {}
+    
+    if 'error_code' in result.keys():
+        result['conclusionType'] = 1
+        
     if result['conclusionType'] == 1:
         output['conclusionType'] = result['conclusionType']
         return output
