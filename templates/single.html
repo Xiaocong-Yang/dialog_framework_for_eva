@@ -35,7 +35,7 @@
 </div>
 <img v-if="selected_single_bot_idx > -1" :src="'/static/imgs/' + bot_names[selected_single_bot_idx] + '.png'" style='width: 100px;;height: 100px; margin-left: 35%; margin-top: 10px;'>
 <div style="width: 100%; padding-left: 5px; padding-right: 5px; padding-top: 10px; font-family: FangSong;">
-    <p v-if="selected_single_bot_idx > -1" style="text-indent: 2em; font-size: 15px;">
+    <p v-if="selected_single_bot_idx > -1" style="text-indent: 2em; font-size: 15px;" v-html="bot_info[bot_names[selected_single_bot_idx]].desc">
         {bot_info[bot_names[selected_single_bot_idx]].desc}
     </p>
     <!-- <p v-else>请选择</p> -->
