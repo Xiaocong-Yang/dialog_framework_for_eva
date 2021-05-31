@@ -58,32 +58,44 @@ class APICall:
                 return response
         return response
 
-    def _user_post_process(self, user_post, history=[]):
+    def _user_post_process(self, user_post, history=[], is_group=False):
         # print('对话历史', history)
         if self.name == 'cpm':
             single_post = self.prompt.format(user_post)
-            if self.use_history and len(history) > 0:
+            if is_group:
+                group_post = single_post[:8] + '“' + '”“'.join(history) + '”“'
+                return group_post
+            elif self.use_history and len(history) > 0:
                 multi_post = single_post[:8] + '“' + '”“'.join(history) + '”' + single_post[8:]
                 return multi_post
             else:
                 return single_post
         elif self.name == 'wenhuiqadialog':
             single_post = self.prompt.format(user_post)
-            if self.use_history and len(history) > 0:
+            if is_group:
+                group_post = single_post[:8] + '“' + '”“'.join(history) + '”“'
+                return group_post
+            elif self.use_history and len(history) > 0:
                 multi_post = single_post[:8] + '“' + '”“'.join(history) + '”' + single_post[8:]
                 return multi_post
             else:
                 return single_post
         elif self.name == 'wenhuichatdialog':
             single_post = self.prompt.format(user_post)
-            if self.use_history and len(history) > 0:
+            if is_group:
+                group_post = single_post[:8] + '“' + '”“'.join(history) + '”“'
+                return group_post
+            elif self.use_history and len(history) > 0:
                 multi_post = single_post[:8] + '“' + '”“'.join(history) + '”' + single_post[8:]
                 return multi_post
             else:
                 return single_post
         elif self.name == 'eva':
             single_post = user_post
-            if self.use_history and len(history) > 0:
+            if is_group:
+                group_post = '\t\t'.join(history)
+                return group_post
+            elif self.use_history and len(history) > 0:
                 multi_post = '\t\t'.join(history) + '\t\t' + single_post
                 return multi_post
             else:
@@ -106,9 +118,9 @@ class APICall:
         if not text_censor(user_post) and self.name != 'wenlan':
             print(f'拦截敏感输入【{user_post}】')
             return {'response': self.get_safe_response(), 'name': self.name}
-        if self.lock.acquire(timeout=5):
+        if self.lock.acquire(timeout=50):
             try:
-                user_post = self._user_post_process(data['user_post'], history=data['history'])
+                user_post = self._user_post_process(data['user_post'], history=data['history'], is_group=data['mode'] == 'group')
                 data['user_post'] = user_post
                 ret = self._call_api(data)
                 ret = json.loads(ret)

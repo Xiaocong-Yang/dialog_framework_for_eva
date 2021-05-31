@@ -129,4 +129,4 @@ def text_censor(sent):
     return True
 
 if __name__ == '__main__':
-    print(text_censor('台独必然失败'))
+    print(text_censor('光州事件 民主运动'))

@@ -146,7 +146,7 @@ def send_message():
 		"message": 123123, 
 		}
 	start_time = time.time()
-	post_data = {'user_post': user_post, 'history': history}
+	post_data = {'user_post': user_post, 'history': history, 'mode': chat_mode}
 	# print(f'user input: {user_post}')
 	if chat_mode == 'single':
 		single_bot_name = request.form['single_bot_name']
@@ -166,6 +166,41 @@ def send_message():
 		ret['bot_name'] = target_bot_name
 		ret['responses'] = responses
 		ret['response'] = responses[target_bot_name]['response']
+	if 'responses' in ret:
+		for key in ret['responses']:
+			ret['responses'][key]['label'] = ""
+	print(f'total time: {time.time() - start_time}')
+	return ret
+
+@app.route('/send_message_group', methods=['POST'])
+def send_message_group():
+	global bot_names
+	user_post = request.form['user_post']
+	chat_mode = request.form['chat_mode']
+	history = request.form['history']
+	history = json.loads(history)
+	ret = {
+		"status": 0, 
+		"message": 123123, 
+		}
+	start_time = time.time()
+	post_data = {'user_post': user_post, 'history': history, 'mode': chat_mode}
+	# print(f'user input: {user_post}')
+	if chat_mode == 'single':
+		single_bot_name = request.form['single_bot_name']
+		ret['bot_name'] = single_bot_name
+		ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
+	elif chat_mode == 'multi':
+		response_bot_name = request.form['response_bot_name']
+		post_data['response_bot_name'] = response_bot_name
+		rank_response = api_controller.call_api_by_rank(post_data)
+		ret['bot_name'] = rank_response['bot_name']
+		ret['responses'] = rank_response['responses']
+		ret['response'] = rank_response['response']
+	else:  # group
+		single_bot_name = request.form['single_bot_name']
+		ret['bot_name'] = single_bot_name
+		ret['response'] = api_controller.call_api_by_name(single_bot_name, post_data)['response']
 	if 'responses' in ret:
 		for key in ret['responses']:
 			ret['responses'][key]['label'] = ""

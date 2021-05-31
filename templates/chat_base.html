@@ -63,8 +63,8 @@
             {% endblock %}
         </div>
         <div style="width: 60%;height: 600px;">
-            <div id="chat_area" style="width: 95%; margin-left: 2%; height: 70%; background-color: #f3f3f3; overflow-y:auto; border-bottom: #e9e9e9 1px solid">
-                <div v-if="messages.length == 0" class="bubble_div">
+            <div id="chat_area" style="width: 95%; margin-left: 2%; height: 80%; background-color: #f3f3f3; overflow-y:auto; border-bottom: #e9e9e9 1px solid">
+                <div v-if="messages.length == 0 && mode != 'group'" class="bubble_div">
                     <div style="height: 20px; text-align: center; margin-bottom: 10px; margin-top: 10px">
                         <font style="color: gray; font-size: 15px"> 欢迎使用，请输入你的问题 </font>
                     </div>
@@ -103,13 +103,14 @@
                     </div>
                 </div>
             </div>
+            <div v-if="mode == 'single' && bot_names[selected_single_bot_idx] != 'wenlan'" style='height: 10px; width: 80%'></div>
             <img v-if="mode == 'single' && bot_names[selected_single_bot_idx] == 'wenlan'" src="/static/imgs/img_upload.png" onclick="input_img_click()" style='width: 30px; height: 25px; margin-top: 5px;margin-left: 15px;'>
-            <img v-if="mode == 'multi'" src="/static/imgs/img_upload.png" onclick="input_img_click()" style='width: 30px; height: 25px; margin-top: 5px;margin-left: 15px;'>
+            <img v-if="mode == 'multi' || mode == 'group'" src="/static/imgs/img_upload.png" onclick="input_img_click()" style='width: 30px; height: 25px; margin-top: 5px;margin-left: 15px;'>
             <input id='input_upload_driver' type="file" style="display: none" onchange="showPreview(this)">
-            <div style="border: 1px solid wight; width: 95%; margin-left: 2%; height: 30%">
-                <div id="input_div" contentEditable="true" style="width: 100%;  height: 60%; resize: none; font-size: 20px; border: white solid 1px; padding: 2px; padding-left: 5px; overflow-y:auto"  onkeypress="onKeyPress(event)"> </div>
+            <div style="border: 1px solid wight; width: 95%; margin-left: 2%; height: 20%">
+                <div id="input_div" contentEditable="true" style="width: 100%;  height: 40%; resize: none; font-size: 20px; border: white solid 1px; padding: 2px; padding-left: 5px; overflow-y:auto"  onkeypress="onKeyPress(event)"> </div>
                 <!-- <textarea id="user_input_area" class="form-control" rows="3" style="width: 100%; margin-top: 3%; height: 60%; resize: none; font-size: 20px;" v-model="user_input" onkeypress="onKeyPress(event)"></textarea> -->
-                <div style="border: 1px solid wight; width: 40%; float: right; margin-top: 2%; height: 25%; display: flex">
+                <div style="border: 1px solid wight; width: 40%; float: right; margin-top: 2%; height: 40%; display: flex">
                     <button class="btn" style="font-size: 20px; width: 47%; margin-right: 5%" @click="clear_history">清空</button>
                     <button class="btn btn-primary" style="font-size: 20px; width: 47%" @click="send_message">发送</button>
                 </div>
@@ -119,8 +120,9 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            // var chat_area = document.getElementById('chat_area');
-            // chat_area.scrollTop = chat_area.scrollHeight;
+            if (vm.mode === 'group') {
+                vm.group_loop()
+            }
         });
         function onKeyPress(event) {
             event = event || window.event;
@@ -188,6 +190,7 @@
                 bot_info: {},
                 bot_order: [],
                 image_base64: null,
+                group_bots: ['cpm', 'eva', 'wenhuiqadialog', 'wenhuichatdialog']
             },
             watch: {
                 messages: function() {
@@ -196,12 +199,6 @@
                         ele.scrollTop = ele.scrollHeight;
                     });
                 },
-                // mark_label: function() {
-                //     this.$nextTick(() => {
-                //         let ele = document.getElementById('chat_area');
-                //         ele.scrollTop = ele.scrollHeight;
-                //     });
-                // },
                 selected_single_bot_idx: function() {
                     if (this.selected_single_bot_idx === -1) {
                         return
@@ -346,6 +343,14 @@
                     this.messages.push(
                         {role: 'user', name: 'user', is_image: _is_image, message: this.user_input}
                     )
+                    // 如果是group对话模式，则输入用户数据后就清空
+                    if (this.mode === 'group') {
+                        this.user_input = ''
+                        document.getElementById('input_div').textContent = ''
+                        this.image_base64 = null
+                        big_div = document.getElementById('input_div').contentEditable = true
+                        return
+                    }
                     let index = Math.floor((Math.random() * this.bot_names.length));
                     if (_is_image) {
                         index = 3
@@ -457,6 +462,94 @@
                     idx = parseInt(id.substring(0, id.length-5))
                     this.messages[this.curr_showall_turn_idx].best_response_name = this.bot_names[idx];
                     // alert('第' + turn_idx + '轮对话的最佳回复来自机器人' + this.curr_best_response_name + ' !')
+                },
+                shuffle: function(arr) {
+                    let new_arr = arr.map(i => ({v: i, r: Math.random()}));
+                    new_arr.sort((a, b) => a.r - b.r);
+                    arr.splice(0, arr.length, ...new_arr.map(i => i.v));
+                    return arr
+                },
+                group_loop: function() {
+                    group_bots = this.group_bots
+                    var interval = 5  // 每次调用后台接口间隔为5s
+                    var max_loop_num = 20
+                    var times = parseInt(max_loop_num / group_bots.length)
+                    console.log('group loop start!')
+                    self = this
+                    // 首先预设对话的序列
+                    var speak_order = []
+                    for(var start = 0; start < times; start++) {
+                        shuffled_order = this.shuffle(JSON.parse(JSON.stringify(group_bots)))
+                        speak_order = speak_order.concat(shuffled_order)
+                    }
+                    for(var start = 0; start < speak_order.length; start++) {
+                        console.log(speak_order[start])
+                        setTimeout(function (tname) {
+                            self.group_call(tname)
+                        }, interval * 1000 * start, speak_order[start]);
+                    }
+                },
+                group_call: function(target_bot_name) {
+                    console.log('target_bot_name')
+                    console.log(target_bot_name)
+                    if (this.mode !== 'group') {
+                        print('terminated')
+                        return
+                    }
+                    var dialog_history = []
+                    for (var i=0; i<this.messages.length; i++) {
+                        if (! this.messages[i].is_image) { // 对于对话历史，只考虑文本输入，不考虑图片输入
+                            dialog_history.push(this.messages[i].message)
+                        }
+                    }
+                    user_post = null
+                    if (this.messages.length > 0) {
+                        user_post = this.messages[this.messages.length-1]
+                        if (user_post.is_image) {
+                            target_bot_name = 'wenlan'
+                            user_post = user_post.message
+                        } else {
+                            user_post = dialog_history[dialog_history.length-1]
+                        }
+                    } else {
+                        user_post = '大家好呀'
+                        dialog_history = [user_post]
+                    }
+                    console.log(target_bot_name)
+                    send_data = {
+                        username: this.user_name,
+                        user_post: user_post,
+                        chat_mode: 'group',
+                        response_bot_name: target_bot_name,
+                        history: JSON.stringify(dialog_history),
+                        single_bot_name: target_bot_name
+                    }
+                    self = this
+                    $.ajax({
+                        type: 'POST',
+                        url: '/send_message_group',
+                        data: send_data,
+                        async: true,
+                        success: function (data) {
+                            if (data.status !== 0) {
+                            } else {
+                                self.messages.push(
+                                    {
+                                        role: 'bot', 
+                                        label: "",
+                                        is_image: false,
+                                        name: data.bot_name, 
+                                        message: data.response,
+                                        responses: data.responses,
+                                        best_response_name: ''
+                                    }
+                                )
+                            }
+                        },
+                        error: function () {
+                            alert("服务器出错了！");
+                        }
+                    });
                 }
             },
         });
