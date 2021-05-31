@@ -28,15 +28,18 @@
 
 {% block left_content %}
 <div style="width: 80%;margin-left: 15%">
-    <label for="target_single_bot" style="font-size: 18px;margin-left: 80px;">请选择机器人</label><br>
-    <select v-model="selected_single_bot_idx"  style="font-size: 20px; margin-left: 35px; width: 200px;">
-        <option v-for="item, i in bot_names" :value="i">{bot_info[item].name}</option>
+    <label for="target_single_bot" style="font-size: 18px;margin-left: 80px;">请选择模型</label><br>
+    <select v-model="selected_single_bot_idx"  style="font-size: 20px; margin-left: 35px; width: 200px;text-align: center;text-align-last: center;">
+        <option v-for="item, i in bot_names" :value="i" style='text-align: center; text-align-last: center'>{bot_info[item].name}</option>
     </select>
 </div>
 <img v-if="selected_single_bot_idx > -1" :src="'/static/imgs/' + bot_names[selected_single_bot_idx] + '.png'" style='width: 100px;;height: 100px; margin-left: 35%; margin-top: 10px;'>
 <div style="width: 100%; padding-left: 5px; padding-right: 5px; padding-top: 10px; font-family: FangSong;">
     <p v-if="selected_single_bot_idx > -1" style="text-indent: 2em; font-size: 15px;" v-html="bot_info[bot_names[selected_single_bot_idx]].desc">
         {bot_info[bot_names[selected_single_bot_idx]].desc}
+    </p>
+    <p v-if="selected_single_bot_idx <= -1" style="text-indent: 2em; font-size: 15px;" >
+        你可以在上述模型中选择一个，与其展开对话。
     </p>
     <!-- <p v-else>请选择</p> -->
 </div>
