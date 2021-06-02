@@ -237,6 +237,9 @@
                         })(i)
                     }
                 }
+                if (this.mode === 'group') {
+                    this.group_loop()
+                }
             },
             methods: {
                 scrollToBottom: function () {
