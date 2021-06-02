@@ -142,7 +142,6 @@
             var file = source.files[0];
             if (window.FileReader) {
                 var fr = new FileReader();
-                console.log(fr);
                 var send_content = document.getElementById('input_div');
                 fr.onloadend = function (e) {
                     send_content.src = e.target.result;
@@ -229,12 +228,10 @@
                         var self = this
                         (function(i) {
                             setTimeout(function() {
-                                console.log(i);
                                 last_uttr = ''
                                 // if (thselfis.messages.length != 0) {
                                 //     last_uttr = self.messages[-1].message
                                 // }
-                                console.log('123')
                                 self.send_group_message(last_uttr)
                             }, (i*1) * 1000);
                         })(i)
@@ -285,7 +282,6 @@
                     }
                     let index = Math.floor((Math.random() * this.bot_names.length));
                     send_data.single_bot_name = this.bot_names[index]
-                    console.log(send_data.single_bot_name)
                     $.ajax({
                         type: 'POST',
                         url: '/send_message',
@@ -362,9 +358,6 @@
                         index = this.selected_single_bot_idx
                     }
                     let response_name = this.bot_names[index]
-                    if (this.mode === 'multi') {
-                        console.log('response name:' + response_name)
-                    }
                     if (response_name !== null && this.mode !== 'chat') {
                         this.messages.push(
                             {role: 'loading'}
@@ -486,15 +479,12 @@
                         speak_order = speak_order.concat(shuffled_order)
                     }
                     for(var start = 0; start < speak_order.length; start++) {
-                        console.log(speak_order[start])
                         setTimeout(function (tname) {
                             self.group_call(tname)
                         }, interval * 1000 * start, speak_order[start]);
                     }
                 },
                 group_call: function(target_bot_name) {
-                    console.log('target_bot_name')
-                    console.log(target_bot_name)
                     if (this.mode !== 'group') {
                         print('terminated')
                         return
@@ -518,7 +508,6 @@
                         user_post = '大家好呀'
                         dialog_history = [user_post]
                     }
-                    console.log(target_bot_name)
                     send_data = {
                         username: this.user_name,
                         user_post: user_post,
