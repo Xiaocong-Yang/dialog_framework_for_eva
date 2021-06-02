@@ -467,7 +467,7 @@
                 },
                 group_loop: function() {
                     group_bots = this.group_bots
-                    var interval = 5  // 每次调用后台接口间隔为5s
+                    var interval = 8  // 每次调用后台接口间隔为5s
                     var max_loop_num = 100
                     var times = parseInt(max_loop_num / group_bots.length)
                     console.log('group loop start!')
@@ -486,9 +486,10 @@
                 },
                 group_call: function(target_bot_name) {
                     if (this.mode !== 'group') {
-                        print('terminated')
+                        console.log('terminated')
                         return
                     }
+                    console.log(new Date().toLocaleTimeString())
                     var dialog_history = []
                     for (var i=0; i<this.messages.length; i++) {
                         if (! this.messages[i].is_image) { // 对于对话历史，只考虑文本输入，不考虑图片输入
