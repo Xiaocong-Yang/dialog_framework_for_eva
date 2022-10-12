@@ -1,7 +1,7 @@
 # dialog_framework
-The dialog framework for multiple large-scale pretrained models.
+This is the implementation of client-server communication of [Eva: an open-domain chinese dialogue system with large-scale generative pre-training](https://arxiv.org/abs/2108.01547).
 
-## 前端接收的数据结构
+## The data structure received from the front end
 data: {
     'sentence': str,
     'length': int(opt.),
